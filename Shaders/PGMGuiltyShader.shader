@@ -82,7 +82,6 @@
 			half4 LightingToonLight (CustomSurfaceOutput s, half3 lightDir, half3 viewDir, half atten) {
 			
 				half NdotL  = saturate(dot (s.Normal, lightDir)) * atten; 
-				float ndotv = saturate(dot(s.Normal, viewDir));
 				float lut = step(_LitOffset, NdotL);
 				
 				half4 c;
