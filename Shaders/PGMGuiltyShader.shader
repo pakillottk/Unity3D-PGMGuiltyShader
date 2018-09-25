@@ -87,7 +87,7 @@
 				
 				half4 c;
 				c.rgb = s.Albedo * _LightColor0.rgb * lut * s.VertexOcclussion;
-				c.rgb += s.Albedo * s.SSS  * _LightColor0.rgb * s.Shadow;
+				c.rgb += s.Albedo * s.SSS  * _LightColor0.rgb * (1.0-s.Shadow);
 				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut;
 				c.rgb *= lerp( _OutlineColor, half3(1,1,1), s.InnerLine);
 				c.a = s.Alpha;
