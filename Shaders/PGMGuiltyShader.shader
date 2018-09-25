@@ -2,10 +2,12 @@
 	Properties {
 		_LitOffset ("Lit offset", Range(0,1)) = 0.25
 		_MainTex ("Texture", 2D) = "white" {}
+		_Color("Main Color", Color) = (1,1,1,1)
 		_SSSTex("SSS Map", 2D) = "white" {}
 		_SSSTint("SSS Color", Color) = (1,1,1,1)
 		_CombMap("Combined Map", 2D) = "white" {}	
 		_SpecTint("Specular Color", Color) = (1,1,1,1)
+		_SpecScale("Specular Scale", Range(0,10)) = 1
 		_OutlineColor ("Outline Color", Color) = (0,0,0,1)
 		_OutlineThickness ("Outline Thickness", Range(0,1))  = 0.2
 	}
@@ -78,16 +80,19 @@
 			half _RimPower;
 			half _LitOffset;
 			half4 _OutlineColor;
+			half4 _Color;
+			float _SpecScale;
 
 			half4 LightingToonLight (CustomSurfaceOutput s, half3 lightDir, half3 viewDir, half atten) {
 			
 				half NdotL  = saturate(dot (s.Normal, lightDir)) * atten; 
-				float lut = step(_LitOffset, NdotL);
+				float ndotv = saturate(dot(s.Normal, viewDir));
+				float lut = step(_LitOffset, NdotL) * s.VertexOcclussion;
 				
 				half4 c;
-				c.rgb = s.Albedo * _LightColor0.rgb * lut * s.VertexOcclussion;
-				c.rgb += s.Albedo * s.SSS  * _LightColor0.rgb * (1.0-s.Shadow);
-				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut;
+				c.rgb = s.Albedo * _Color * _LightColor0.rgb * lut;
+				c.rgb += s.Albedo * s.SSS  * _LightColor0.rgb * clamp((1.0-s.Shadow)+(1.0-s.VertexOcclussion),0,1);
+				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut * _SpecScale;
 				c.rgb *= lerp( _OutlineColor, half3(1,1,1), s.InnerLine);
 				c.a = s.Alpha;
 				return c;
