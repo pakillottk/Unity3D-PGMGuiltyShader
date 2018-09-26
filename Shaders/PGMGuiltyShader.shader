@@ -35,15 +35,13 @@
 			struct v2f
 			{
 				float4 pos : SV_POSITION;
-				float3 normal : TEXCOORD1;
 			};
 
 			v2f vert (appdata v)
 			{
 				v2f o;
 
-				o.pos = UnityObjectToClipPos(v.vertex+v.normal*(_OutlineThickness/100));
-				o.normal = UnityObjectToWorldNormal(v.normal);
+				o.pos = UnityObjectToClipPos(v.vertex+normalize(v.normal)*(_OutlineThickness/100));
 				return o;
 			}
 			
@@ -91,7 +89,7 @@
 				
 				half4 c;
 				c.rgb = s.Albedo * _Color * _LightColor0.rgb * lut;
-				c.rgb += s.Albedo * s.SSS  * _LightColor0.rgb * clamp((1.0-s.Shadow)+(1.0-s.VertexOcclussion),0,1);
+				c.rgb += s.Albedo * s.SSS * clamp((1.0-s.Shadow)+(1.0-s.VertexOcclussion),0,1);
 				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut * _SpecScale;
 				c.rgb *= lerp( _OutlineColor, half3(1,1,1), s.InnerLine);
 				c.a = s.Alpha;
