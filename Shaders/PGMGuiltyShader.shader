@@ -88,8 +88,8 @@
 				float lut = step(_LitOffset, NdotL) * s.VertexOcclussion;
 				
 				half4 c;
-				c.rgb = s.Albedo * _Color * _LightColor0.rgb * lut;
-				c.rgb += s.Albedo * s.SSS * clamp((1.0-s.Shadow)+(1.0-s.VertexOcclussion),0,1);
+				half3 albedoColor = s.Albedo * _Color * _LightColor0.rgb;
+				c.rgb = lerp( albedoColor * s.SSS, albedoColor,lut * s.Shadow * s.VertexOcclussion);
 				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut * _SpecScale;
 				c.rgb *= lerp( _OutlineColor, half3(1,1,1), s.InnerLine);
 				c.a = s.Alpha;
