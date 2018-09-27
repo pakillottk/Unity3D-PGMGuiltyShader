@@ -1,4 +1,4 @@
-  Shader "Toon/PGMGuiltyShader" {
+ Shader "Toon/PGMGuiltyShader" {
 	Properties {
 		_LitOffset ("Lit offset", Range(0,1)) = 0.25
 		_MainTex ("Texture", 2D) = "white" {}
@@ -8,6 +8,7 @@
 		_CombMap("Combined Map", 2D) = "white" {}	
 		_SpecTint("Specular Color", Color) = (1,1,1,1)
 		_SpecScale("Specular Scale", Range(0,10)) = 1
+		_SpecPower("Specular Power", Range(0,300)) = 1.0
 		_OutlineColor ("Outline Color", Color) = (0,0,0,1)
 		_OutlineThickness ("Outline Thickness", Range(0,1))  = 0.2
 		_OcclussionScale("Occlussion scale", Range(0,10)) = 1
@@ -82,6 +83,7 @@
 			half4 _Color;
 			float _SpecScale;
 			float _OcclussionScale;
+			float _SpecPower;
 
 			half4 LightingToonLight (CustomSurfaceOutput s, half3 lightDir, half3 viewDir, half atten) {
 			
@@ -92,8 +94,10 @@
 				
 				half4 c;
 				half3 albedoColor = s.Albedo * _Color * _LightColor0.rgb;
+				half3 specColor = lut * steppedOc * s.Shadow * _LightColor0.rgb *
+				_SpecTint * saturate(pow(max(0.0, saturate(dot(reflect(-lightDir, s.Normal), viewDir))), s.Glossiness * _SpecPower));
 				c.rgb = lerp( albedoColor * s.SSS, albedoColor, lut * s.Shadow * steppedOc);
-				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut * steppedOc * _SpecScale;
+				c.rgb += s.Glossy * _SpecScale * specColor;
 				c.rgb *= lerp( _OutlineColor, half3(1,1,1), s.InnerLine);
 				c.a = s.Alpha;
 				return c;
