@@ -10,6 +10,7 @@
 		_SpecScale("Specular Scale", Range(0,10)) = 1
 		_OutlineColor ("Outline Color", Color) = (0,0,0,1)
 		_OutlineThickness ("Outline Thickness", Range(0,1))  = 0.2
+		_OcclussionScale("Occlussion scale", Range(0,10)) = 1
 	}
 
 	SubShader {	
@@ -80,22 +81,24 @@
 			half4 _OutlineColor;
 			half4 _Color;
 			float _SpecScale;
+			float _OcclussionScale;
 
 			half4 LightingToonLight (CustomSurfaceOutput s, half3 lightDir, half3 viewDir, half atten) {
 			
 				half NdotL  = saturate(dot (s.Normal, lightDir)) * atten; 
 				float ndotv = saturate(dot(s.Normal, viewDir));
-				float lut = step(_LitOffset, NdotL) * s.VertexOcclussion;
+				float lut = step(_LitOffset, NdotL);
+				float steppedOc = step(0.9, s.VertexOcclussion * _OcclussionScale);
 				
 				half4 c;
 				half3 albedoColor = s.Albedo * _Color * _LightColor0.rgb;
-				c.rgb = lerp( albedoColor * s.SSS, albedoColor,lut * s.Shadow * s.VertexOcclussion);
-				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut * _SpecScale;
+				c.rgb = lerp( albedoColor * s.SSS, albedoColor, lut * s.Shadow * steppedOc);
+				c.rgb += _SpecTint * s.Glossy * s.Glossiness * _LightColor0.rgb * lut * steppedOc * _SpecScale;
 				c.rgb *= lerp( _OutlineColor, half3(1,1,1), s.InnerLine);
 				c.a = s.Alpha;
 				return c;
 			}
-  
+
 			struct Input {
 				float2 uv_MainTex;
 				float4 vertColor : COLOR;
