@@ -10,11 +10,11 @@ Defines the RGB color of the surface when it's shadowed. Acts as a translucency 
 ## Combined Map
 This map basically controls the light interaction.
 ### R channel:
-Maps the per pixel Specular size.
+Maps per pixel what it's specular and what doesn't.
 ### G channel:
 Maps the per pixel Shadowing (an extra shadow light independent).
 ### B channel:
-Maps per pixel what it's specular and what doesn't.
+Maps the per pixel Specular size (darker areas are bigger that brighter).
 ### A channel:
 All 0 alpha pixels would be shaded as an Inner line pixel.
 ## EXTRA:
